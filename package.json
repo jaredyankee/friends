@@ -1,0 +1,26 @@
+{
+  "name": "friends",
+  "version": "1.0.0",
+  "description": "Easily share your availability with your friends!",
+  "keywords": [
+    "friends",
+    "schedule",
+    "calendar",
+    "organize"
+  ],
+  "homepage": "https://github.com/jaredyankee/friends#readme",
+  "bugs": {
+    "url": "https://github.com/jaredyankee/friends/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jaredyankee/friends.git"
+  },
+  "license": "MIT",
+  "author": "jaredyankee",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
