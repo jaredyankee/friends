@@ -208,6 +208,13 @@ Detect when a user's device zone differs from their profile zone; decide and imp
 In-app account deletion is **required by App Store guidelines** for any app with signup. Cascade
 behavior across items, shares, groups, and messages needs deciding, not defaulting.
 
+### A8.1b — Privacy policy and support pages `[ ]`
+`web/` and `netlify.toml` are in place with drafts; the content is not launch-ready. Needs: a real
+privacy policy written against what the app actually stores (the inventory in `web/privacy.html` is
+accurate and is the starting point), retention periods, subprocessor list, deletion and export
+process, effective date — and a monitored contact route on the support page, which App Store review
+checks. Worth a legal review rather than shipping self-written text.
+
 ### A8.2 — Error, empty, and offline states `[ ]`
 Systematic pass across all four tabs, plus crash reporting.
 

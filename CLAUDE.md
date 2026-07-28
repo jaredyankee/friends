@@ -173,9 +173,15 @@ theme/                      # tokens, light/dark, user-selectable palettes
 supabase/
   migrations/               # timestamped SQL, forward-only
   functions/
-    parse-schedule-image/   # Edge Function: photo -> structured shifts
+    parse-schedule-image/   # Edge Function: photo -> structured shifts (post-v1)
+web/                        # static marketing + legal site, deployed by Netlify
 docs/schema.md              # the data model
 ```
+
+`web/` is **not** the app. Friends is React Native and does not build for web. That directory is a
+plain static site hosting the landing page, privacy policy, and support page — the last two are
+required by App Store review (T8.4). `netlify.toml` points Netlify at it; without that config Netlify
+tries to build the mobile app and fails every deploy preview.
 
 Feature logic goes in `features/`, not in route files. Route files wire things together and stay thin.
 
