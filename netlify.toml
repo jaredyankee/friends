@@ -14,10 +14,6 @@
   # tries to build the React Native app.
   command = "echo 'No build step — publishing static site from web/'"
 
-# Nothing to install. Skips npm install against the app's package.json.
-[build.environment]
-  NETLIFY_SKIP_DEFAULT_INSTALL = "true"
-
 # Long-cache static assets; always revalidate HTML so policy updates go live.
 [[headers]]
   for = "/*.html"
