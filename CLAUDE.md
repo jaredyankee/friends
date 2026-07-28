@@ -15,6 +15,11 @@ The product spec lives in `README.md`. This file covers how we build it.
   free/busy, or availability logic.
 - `docs/schedule-ui.md` — the React Native calendar component kit. Read before touching calendar
   views, gestures, or layout.
+- `docs/roadmap.md` — the work tree. Check the current position before starting anything, and update
+  it when an action merges.
+- `docs/llm-bible-notes.md` — not about Friends. Portable observations about working with LLMs,
+  destined for the owner's `jaredyankee/llm-bible` repo. Append an entry when the owner gives guidance
+  that generalizes beyond this project, or when you spot a pattern or failure mode worth recording.
 
 ## Current state
 
@@ -27,9 +32,26 @@ scaffolded — say so plainly rather than pretending a step succeeded.
 Work arrives as PRs the owner reviews, and the owner is not watching it happen. Write for someone
 catching up, not for a log file.
 
-**End every message with a "Next up" block.** A short numbered list of the concrete options
-available now — each one sentence covering what it does and what it costs or unlocks. Anything that
-needs the owner's input goes in that block.
+**End every message with a "Next up" block**, and put every ask in it. The plan lives in
+`docs/roadmap.md` as a tree: **task → action → requirement**, where one action is one PR. The message
+shows only where we are in that tree, never the whole thing.
+
+```
+Next up
+  T2 · schedule-core                        ← current task
+    A2.2 · Zone-correct recurrence          ← current action (this PR)
+      1. Wrap rrule, expand in local time
+      2. DST policy + fixtures
+      3. Exceptions by occurrenceStart
+  Then: A2.3 · Free/busy and availability
+```
+
+Three to five requirements per action, adjusted to what the work actually needs. Anything requiring
+the owner's input goes here too, marked as a decision rather than a step.
+
+**Traversal.** Finish an action's requirements → PR → on merge, mark it done in `docs/roadmap.md` and
+move to the *next action in the same task*. Return to the task level only when its actions are all
+done. Don't jump branches without saying so and why.
 
 Rules that make the block worth reading:
 
@@ -45,8 +67,9 @@ Rules that make the block worth reading:
   and move on. Save the questions for choices where the answer changes the work.
 - **Say what you didn't do.** If part of the task was skipped, blocked, or deliberately deferred,
   name it plainly rather than letting a clean summary imply it's done.
-- Keep options to a handful. A list of nine choices is the same as no recommendation — if one option
-  is clearly right, put it first and say so.
+- **Keep the tree honest.** Detail decays with distance — near actions get checkable requirements,
+  far ones stay coarse until we reach them. Don't write confident requirements for work behind
+  several unknowns; mark it provisional instead.
 
 **Propose amendments to this file when you find a gap.** Standing permission, no need to ask first.
 If a conversation reveals that a decision recorded here was based on a misread of the owner's intent,
