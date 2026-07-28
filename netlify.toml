@@ -9,11 +9,14 @@
 
 [build]
   publish = "web"
-  # No build step. web/ is plain static HTML, published as-is.
-  command = ""
+  # web/ is plain static HTML. An explicit no-op command is deliberate: an empty
+  # string lets Netlify fall back to auto-detection, which finds package.json and
+  # tries to build the React Native app.
+  command = "echo 'No build step — publishing static site from web/'"
 
-[build.processing]
-  skip_processing = false
+# Nothing to install. Skips npm install against the app's package.json.
+[build.environment]
+  NETLIFY_SKIP_DEFAULT_INSTALL = "true"
 
 # Long-cache static assets; always revalidate HTML so policy updates go live.
 [[headers]]
