@@ -27,6 +27,10 @@ Greenfield. The repo contains `README.md`, `LICENSE`, `package.json`, and these 
 code exists yet. Commands listed below describe the intended setup and will not run until the app is
 scaffolded — say so plainly rather than pretending a step succeeded.
 
+**v1 targets a public App Store release**, not a prototype. That means account deletion, a privacy
+policy, and App Privacy disclosures are requirements, not polish — see T8 in `docs/roadmap.md`. Build
+accordingly: a shortcut that can't pass review isn't a shortcut.
+
 ## Communicating with the repo owner
 
 Work arrives as PRs the owner reviews, and the owner is not watching it happen. Write for someone
@@ -97,7 +101,8 @@ wrong tool for a task, say so and let the owner decide.
 Navigation is a tab bar with exactly four destinations. Resist adding a fifth.
 
 1. **Calendar** — personal month/week/agenda views, plus group composite calendars.
-2. **Form** — create and edit schedule items; also where a work-schedule photo is uploaded.
+2. **Form** — create and edit schedule items. Also where a work-schedule photo gets uploaded, once
+   that feature lands post-v1.
 3. **Chat** — per-group messaging.
 4. **Account** — profile, friends, groups, theme, visibility defaults.
 
@@ -268,7 +273,12 @@ Read these before writing any date code. They are the invariants most likely to 
   separate date type.
 - Render in the *viewer's* current zone, and label the zone whenever it differs from the item's.
 
-## Schedule photo import
+## Schedule photo import — post-v1
+
+> **Deferred.** v1 ships without this. The design below is settled and stays here for when it's
+> picked up; the `schedule_items.source` and `import_id` columns already anticipate it. Two things
+> need resolving before it ships that aren't solved below: per-user rate limiting (every parse is a
+> paid API call) and a deletion lifecycle for uploaded images.
 
 The README's headline feature: photograph a work schedule, get shifts on the calendar.
 
@@ -334,3 +344,9 @@ Not yet settled. Raise them when the work reaches them rather than picking silen
 - Whether groups get an explicit "event" object for confirmed plans, or plans are just schedule
   items created from a chosen availability window.
 - Free-tier limits: number of groups, message retention.
+- Account deletion cascade — what happens to a deleted user's messages, and to a group whose last
+  owner leaves. Needed by T8.1.
+
+Settled, recorded so they aren't relitigated: **no group-level visibility floor** (per-item grants
+only — see `docs/schema.md`); **group invite links only**, not public availability links, which would
+require an unauthenticated read path around RLS.

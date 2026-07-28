@@ -126,6 +126,32 @@ Entry format:
   skim. Treating them as equally light produces silent lock-in.
 - **Generality:** Universal. The categories are more useful than any individual recommendation.
 
+## 011 — Audit plans against "done," not against the feature list
+
+- **Source:** flag
+- **Principle:** When generating a project plan, check it against what shipping actually requires, not
+  just against the stated features. Distribution, compliance, CI, account deletion, and error states
+  rarely appear in a feature description and are rarely volunteered by the agent — so a plan built by
+  restating the request reads as complete while being unshippable.
+- **Why:** The first roadmap here covered every feature the user described and still had no build
+  path, no CI, no store submission, and no account deletion — which Apple mandates for any app with
+  signup. Nothing was *wrong* in it; the omissions were invisible because the feature list was fully
+  satisfied. The failure mode is silent, and it surfaces at the worst moment.
+- **Generality:** Universal for planning tasks. A useful prompt to run against any generated plan:
+  "what does a competent practitioner know is required here that the requester didn't mention?"
+
+## 012 — Vertical slice before horizontal completeness
+
+- **Source:** owner, agent-recommended
+- **Principle:** When a plan builds layers in sequence — engine, then data, then UI, then app — prefer
+  resequencing around one thin end-to-end path first. Finish nothing completely until something works
+  end to end.
+- **Why:** Layer-complete plans are easy for an agent to generate because each layer is legible in
+  isolation, and they delay integration feedback until the point where interfaces are most expensive
+  to change. The agent proposed the layered version first and had to be corrected toward the slice.
+- **Generality:** Universal for greenfield software plans. Worth treating as a default the agent
+  applies unprompted rather than an option it offers.
+
 ---
 
 ## Open flags

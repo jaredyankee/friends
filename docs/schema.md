@@ -101,6 +101,47 @@ create table group_members (
 create index group_members_profile_idx on group_members (profile_id);
 ```
 
+### `group_invites`
+
+Shareable links that let someone join a group. The token is the secret — it appears in a deep link,
+so it must be unguessable, revocable, and bounded.
+
+```sql
+create table group_invites (
+  id          uuid primary key default gen_random_uuid(),
+  group_id    uuid not null references groups (id) on delete cascade,
+  created_by  uuid not null references profiles (id) on delete cascade,
+  -- URL-safe secret. Generated with a CSPRNG, never sequential.
+  token       text not null unique,
+  expires_at  timestamptz,
+  max_uses    integer check (max_uses is null or max_uses > 0),
+  use_count   integer not null default 0,
+  revoked_at  timestamptz,
+  created_at  timestamptz not null default now()
+);
+
+create index group_invites_group_idx on group_invites (group_id) where revoked_at is null;
+```
+
+An invite is redeemable when it is not revoked, not expired, and under `max_uses`. Both null means a
+permanent unlimited link — allowed, but the UI should treat it as the less safe option rather than the
+default.
+
+**Redemption goes through a `security definer` function, not a direct select.** A prospective member
+is not yet in the group, so no reasonable RLS policy on `group_invites` would let them read the row —
+and a policy permissive enough to allow it would let anyone enumerate invites. The function takes a
+token, validates it, inserts the `group_members` row, and increments `use_count` atomically:
+
+```sql
+create or replace function redeem_group_invite(invite_token text)
+returns uuid language plpgsql security definer set search_path = public as $$
+-- Returns the joined group_id, or raises. Rate-limit at the edge:
+-- this function is the one place an unauthenticated-ish guess can be tested.
+$$;
+```
+
+Only group `owner`/`admin` roles may create, list, or revoke invites.
+
 ### `schedule_items`
 
 The core table. One row per block of time, recurring or not.
@@ -222,7 +263,11 @@ create table messages (
 create index messages_group_created_idx on messages (group_id, created_at desc);
 ```
 
-### `schedule_imports`
+### `schedule_imports` — post-v1
+
+> **Not in v1.** Schedule photo import is deferred; this table ships with the feature, not before.
+> Retained here because the design is settled and the `schedule_items.source` / `import_id` columns
+> anticipate it. Don't build against it in v1.
 
 Tracks a photographed schedule from upload through user confirmation. Parsed shifts land in
 `parsed_shifts` and are **not** written to `schedule_items` until the user confirms them.
@@ -436,11 +481,18 @@ implementation detail:
   for the same third person, because they hold different grants. Don't build UI that implies a single
   objective answer.
 
+## Settled
+
+**Group visibility floor: rejected.** A group does not override a member's per-item settings — no
+floor, no per-group defaults. Visibility resolves by exactly one rule: the highest grant from any path
+wins. A second interacting rule is precisely where privacy bugs breed, and the convenience it buys
+isn't worth someone being surprised by what a group can see.
+
 ## Open questions
 
-- Should a group have its own visibility floor — e.g. "everyone in this group sees at least `busy`"
-  — overriding a member's per-item default? Simplifies the mental model; costs some control.
 - Do we need a materialized occurrence cache for large groups over long ranges, or is on-demand
   expansion fast enough? Measure before adding one; a cache reintroduces the invalidation problems
   this model is built to avoid.
 - Message retention and whether `deleted_at` is a soft delete for moderation or a true tombstone.
+- Account deletion cascade (T8.1): items and shares clearly go, but what happens to a deleted user's
+  messages in a group thread, and to a group whose last owner deletes their account?
