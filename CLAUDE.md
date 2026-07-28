@@ -8,14 +8,43 @@ Guidance for Claude Code when working in this repository.
 schedule; schedules can be shared with individuals or groups; a group's calendar is the composite of
 its members' schedules, and the app surfaces the windows when everyone is free.
 
-The product spec lives in `README.md`. This file covers how we build it. The data model lives in
-`docs/schema.md` — read it before touching anything that reads or writes schedule data.
+The product spec lives in `README.md`. This file covers how we build it.
+
+- `docs/schema.md` — the data model. Read before touching anything that reads or writes schedule data.
+- `docs/schedule-core.md` — the portable scheduling engine and its API. Read before touching
+  recurrence, free/busy, or availability logic.
 
 ## Current state
 
 Greenfield. The repo contains `README.md`, `LICENSE`, `package.json`, and these docs. No application
 code exists yet. Commands listed below describe the intended setup and will not run until the app is
 scaffolded — say so plainly rather than pretending a step succeeded.
+
+## Communicating with the repo owner
+
+Work arrives as PRs the owner reviews, and the owner is not watching it happen. Write for someone
+catching up, not for a log file.
+
+**End every message with a "Next up" block.** A short numbered list of the concrete options
+available now — each one sentence covering what it does and what it costs or unlocks. Anything that
+needs the owner's input goes in that block.
+
+Rules that make the block worth reading:
+
+- **Never scatter asks through the body.** If the owner needs to do something, decide something, or
+  answer something, it belongs in "Next up" and nowhere else. A request buried in paragraph three is
+  a request that gets missed.
+- **Lead with the outcome.** First sentence answers "what happened" or "what did you find". Detail
+  and reasoning come after, for whoever wants them.
+- **Mark the one-way doors.** Call out explicitly when a choice is expensive to reverse later
+  (a stack commitment, a published package API, a shipped migration) versus cheap to change. Those
+  deserve the owner's attention; the rest usually doesn't.
+- **Don't ask permission for reversible things.** Make the routine call, state which way you went,
+  and move on. Save the questions for choices where the answer changes the work.
+- **Say what you didn't do.** If part of the task was skipped, blocked, or deliberately deferred,
+  name it plainly rather than letting a clean summary imply it's done.
+- Keep options to a handful. A list of nine choices is the same as no recommendation — if one option
+  is clearly right, put it first and say so.
 
 ## Stack (decisions of record)
 
@@ -40,9 +69,35 @@ Navigation is a tab bar with exactly four destinations. Resist adding a fifth.
 3. **Chat** — per-group messaging.
 4. **Account** — profile, friends, groups, theme, visibility defaults.
 
+## Architecture: the portable core
+
+Scheduling logic — recurrence expansion, free/busy, availability — lives in a standalone package,
+not in the app. It is designed to be consumed by other projects that draw calendar data from
+entirely different sources. Full API design in `docs/schedule-core.md`.
+
+**The boundary rule, which is the whole point:** `packages/schedule-core` must never import Supabase,
+React, Expo, or anything else app-specific. It is pure functions over plain serializable data, plus a
+`ScheduleSource` interface that callers implement. Friends provides a Supabase-backed source; another
+app provides its own. Neither leaks into the core.
+
+Consequences to respect when working in either place:
+
+- Nothing app-specific goes in the core. No visibility levels, no `profiles` table, no group concept.
+  Friends' visibility system resolves in Postgres and hands the core *already-filtered* data.
+- Nothing schedule-math goes in the app. If you're writing interval arithmetic or DST handling in
+  `features/`, it belongs in the package instead.
+- The core's public API is a contract. Once another project depends on it, breaking changes cost a
+  coordinated release — treat additions as cheap and signature changes as expensive.
+- The core takes and returns ISO 8601 strings, not `Date` objects, so its data crosses HTTP, RPC, and
+  process boundaries without conversion.
+
 ## Planned layout
 
 ```
+packages/
+  schedule-core/            # portable scheduling engine — zero app dependencies
+    src/
+    test/fixtures/          # golden cases: DST, cross-zone, exceptions
 app/                        # expo-router routes
   (tabs)/
     calendar/               # personal + group calendar views
@@ -55,7 +110,7 @@ features/                   # feature-scoped logic (schedule/, groups/, chat/, a
 lib/
   supabase.ts               # typed client
   database.types.ts         # generated — never hand-edit
-  time.ts                   # Luxon + rrule helpers; all recurrence expansion lives here
+  schedule-source.ts        # Supabase implementation of the core's ScheduleSource
 theme/                      # tokens, light/dark, user-selectable palettes
 supabase/
   migrations/               # timestamped SQL, forward-only
@@ -73,7 +128,10 @@ npx expo start                      # dev server
 npx expo run:ios                    # build + run on simulator
 npx tsc --noEmit                    # typecheck
 npm run lint                        # eslint
-npm test                            # jest
+npm test                            # jest (app)
+
+npm test    -w schedule-core        # package tests — run these before any core change lands
+npm run build -w schedule-core      # tsc build of the portable package
 
 supabase start                      # local Postgres + Auth + Storage
 supabase migration new <name>       # create a migration
@@ -196,8 +254,9 @@ mode), light and dark, user-selectable palettes.
   migration.
 - Every table with user data gets RLS enabled and explicit policies in the same migration that
   creates it. A table without policies is a leak.
-- Tests: unit tests for `lib/time.ts` and availability computation are not optional — that's where
-  the subtle bugs live. Include DST-boundary and cross-zone cases.
+- Tests: full unit coverage of `packages/schedule-core` is not optional — that's where the subtle
+  bugs live, and it's the code another project will depend on. Include DST-boundary, cross-zone, and
+  exception-heavy cases.
 
 ## Working in this repo
 

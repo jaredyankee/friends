@@ -398,9 +398,15 @@ Expansion, in order:
 
 Duration is carried from the parent (`ends_at - starts_at`) unless an exception overrides it.
 
-Expansion lives in one place — `lib/time.ts` on the client, mirrored by a SQL/Edge implementation for
-server-side availability. If the two ever disagree, that's a bug, and the shared test fixtures
-(DST-boundary, cross-zone, exception-heavy) exist to catch it.
+Expansion lives in `packages/schedule-core` (see `docs/schedule-core.md`), mirrored by a SQL/Edge
+implementation for server-side availability. If the two ever disagree, that's a bug — the package's
+golden fixtures are plain JSON specifically so both implementations can be validated against the same
+cases.
+
+The columns above map onto the package's `CalendarEvent` directly: `starts_at`/`ends_at` → `start`/`end`,
+`time_zone` → `timeZone`, `rrule` + `recurrence_until` + the exceptions table → `recurrence`, and
+`title`/`location`/`notes` → `metadata`. Keep them aligned; a divergence here means a translation
+layer nobody wanted.
 
 ## Availability
 
