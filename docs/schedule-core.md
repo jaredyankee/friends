@@ -5,6 +5,10 @@ and multi-participant availability, with no knowledge of where calendar data com
 
 This is a design document. Nothing is implemented yet.
 
+> This is the headless half of the calendar kit. The React Native components live in
+> `schedule-ui` — see `docs/schedule-ui.md`. The two ship together; this one stays importable from
+> servers, Edge Functions, and the SQL availability path, which is why they're separate.
+
 ## Why a package
 
 Friends needs this logic. So does the owner's other calendar app, which draws from different sources.

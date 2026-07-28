@@ -11,8 +11,10 @@ its members' schedules, and the app surfaces the windows when everyone is free.
 The product spec lives in `README.md`. This file covers how we build it.
 
 - `docs/schema.md` — the data model. Read before touching anything that reads or writes schedule data.
-- `docs/schedule-core.md` — the portable scheduling engine and its API. Read before touching
-  recurrence, free/busy, or availability logic.
+- `docs/schedule-core.md` — the headless scheduling engine. Read before touching recurrence,
+  free/busy, or availability logic.
+- `docs/schedule-ui.md` — the React Native calendar component kit. Read before touching calendar
+  views, gestures, or layout.
 
 ## Current state
 
@@ -46,6 +48,13 @@ Rules that make the block worth reading:
 - Keep options to a handful. A list of nine choices is the same as no recommendation — if one option
   is clearly right, put it first and say so.
 
+**Propose amendments to this file when you find a gap.** Standing permission, no need to ask first.
+If a conversation reveals that a decision recorded here was based on a misread of the owner's intent,
+or that something load-bearing was never written down, amend the file in the same change and say what
+you changed and why. Two rules: name the gap plainly rather than quietly editing around it — "I scoped
+X as Y, you meant Z" — and don't reverse a decision the owner made explicitly. Surfacing that a
+decision now looks wrong is useful; overwriting it is not.
+
 ## Stack (decisions of record)
 
 | Layer | Choice | Why |
@@ -69,35 +78,56 @@ Navigation is a tab bar with exactly four destinations. Resist adding a fifth.
 3. **Chat** — per-group messaging.
 4. **Account** — profile, friends, groups, theme, visibility defaults.
 
-## Architecture: the portable core
+## Architecture: the calendar kit
 
-Scheduling logic — recurrence expansion, free/busy, availability — lives in a standalone package,
-not in the app. It is designed to be consumed by other projects that draw calendar data from
-entirely different sources. Full API design in `docs/schedule-core.md`.
+The calendar — logic *and* UI — is a reusable kit, not app code. It is built to be consumed by other
+projects that draw calendar data from entirely different sources. Friends is its first consumer, not
+its owner.
 
-**The boundary rule, which is the whole point:** `packages/schedule-core` must never import Supabase,
-React, Expo, or anything else app-specific. It is pure functions over plain serializable data, plus a
-`ScheduleSource` interface that callers implement. Friends provides a Supabase-backed source; another
-app provides its own. Neither leaks into the core.
+Two packages, published together and versioned in lockstep:
 
-Consequences to respect when working in either place:
+| Package | Holds | Depends on |
+| --- | --- | --- |
+| `schedule-core` | Recurrence expansion, interval algebra, free/busy, availability | `rrule`, `luxon`. Nothing else. |
+| `schedule-ui` | React Native views, gestures, layout hooks, theming | `schedule-core`; peers: react, react-native, reanimated, gesture-handler |
 
-- Nothing app-specific goes in the core. No visibility levels, no `profiles` table, no group concept.
-  Friends' visibility system resolves in Postgres and hands the core *already-filtered* data.
-- Nothing schedule-math goes in the app. If you're writing interval arithmetic or DST handling in
-  `features/`, it belongs in the package instead.
-- The core's public API is a contract. Once another project depends on it, breaking changes cost a
-  coordinated release — treat additions as cheap and signature changes as expensive.
-- The core takes and returns ISO 8601 strings, not `Date` objects, so its data crosses HTTP, RPC, and
-  process boundaries without conversion.
+Designs: `docs/schedule-core.md` and `docs/schedule-ui.md`.
+
+**Why the split.** `schedule-core` has to be importable where React cannot go — Supabase Edge
+Functions, the SQL availability path, any server-side consumer. Bundling components into it would drag
+React Native into a database function. Apps install both packages; the split costs an extra dependency
+line and buys a core that runs anywhere.
+
+Rules that hold across both:
+
+- **Neither package imports Supabase, Expo, or app-domain concepts.** No visibility levels, no
+  `profiles` table, no group concept. Friends' visibility system resolves in Postgres and hands the kit
+  *already-filtered* data — see the mapping table in `docs/schedule-core.md`.
+- **Nothing calendar-shaped goes in the app.** Interval arithmetic, DST handling, overlap packing, and
+  time-grid layout belong in the packages. If you're writing any of that under `app/` or `features/`,
+  it's in the wrong place.
+- **Neither package does I/O.** Core takes data, UI takes props. Fetching, caching, and auth are the
+  app's job.
+- **Public APIs are contracts.** Once a second project depends on them, a signature change costs a
+  coordinated release. Additions are cheap; changes are expensive; vendor types must never leak through
+  a public API, or swapping an internal renderer becomes a breaking change.
+- **ISO 8601 strings at every boundary, not `Date` objects.** Data crosses HTTP, RPC, and process
+  boundaries unchanged, and test fixtures stay plain JSON.
+- **Theme in, no colors out.** `schedule-ui` hard-codes no color. It takes a theme object, which is
+  what lets Friends' user-selectable palettes and another app's design language both work.
 
 ## Planned layout
 
 ```
 packages/
-  schedule-core/            # portable scheduling engine — zero app dependencies
+  schedule-core/            # headless engine — zero app dependencies
     src/
     test/fixtures/          # golden cases: DST, cross-zone, exceptions
+  schedule-ui/              # React Native calendar kit
+    src/
+      components/           # MonthView, WeekView, DayView, AgendaList, availability views
+      hooks/                # layout, cursor, drag, now-indicator
+      theme/                # CalendarTheme contract + default theme
 app/                        # expo-router routes
   (tabs)/
     calendar/               # personal + group calendar views
@@ -130,8 +160,9 @@ npx tsc --noEmit                    # typecheck
 npm run lint                        # eslint
 npm test                            # jest (app)
 
-npm test    -w schedule-core        # package tests — run these before any core change lands
-npm run build -w schedule-core      # tsc build of the portable package
+npm test      -w schedule-core      # engine tests — run before any core change lands
+npm test      -w schedule-ui        # layout math + component render tests
+npm run build -w schedule-core -w schedule-ui
 
 supabase start                      # local Postgres + Auth + Storage
 supabase migration new <name>       # create a migration
@@ -243,6 +274,8 @@ mode), light and dark, user-selectable palettes.
 - Both modes must be legible for every shipped palette. Check contrast on text over the primary.
 - Availability states (free / partially free / busy) are among the tokens, and must stay
   distinguishable without relying on hue alone.
+- The app's palette maps onto `schedule-ui`'s `CalendarTheme` contract (`docs/schedule-ui.md`). The kit
+  ships a default theme; Friends overrides it. Adding a palette should never require touching the kit.
 
 ## Conventions
 
