@@ -45,3 +45,47 @@ jobs:
       # app — this does, and it is where a broken metro.config.js shows up.
       - name: Bundle (proves workspace resolution)
         run: npx expo export --platform ios --output-dir /tmp/expo-export
+
+  database:
+    name: Migrations and RLS policies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # The real Supabase stack, not the local auth shim. This is the check that
+      # matters: it proves the migration applies against the genuine auth schema
+      # and that supabase/tests/00_auth_shim.sql has not drifted from reality.
+      - name: Start Supabase
+        run: npx supabase start
+
+      - name: Replay migrations and seed
+        run: npx supabase db reset
+
+      # Run through psql rather than the CLI: ON_ERROR_STOP is what turns a
+      # raised assertion into a non-zero exit, and psql is preinstalled on
+      # ubuntu-latest. Note these tests do NOT load the local auth shim — the
+      # real stack already provides auth.users and auth.uid().
+      - name: Policy tests
+        run: |
+          set -euo pipefail
+          eval "$(npx supabase status -o env)"
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/01_identity_policies.sql
+
+      # Catches the classic drift: someone adds a migration and forgets to
+      # regenerate types. Compares against the committed file rather than
+      # trusting that it was updated.
+      - name: Generated types are current
+        run: |
+          npx supabase gen types typescript --local --schema public > /tmp/database.types.ts
+          if ! diff -u lib/database.types.ts /tmp/database.types.ts; then
+            echo "::error::lib/database.types.ts is stale. Run 'npm run db:types' and commit."
+            exit 1
+          fi
