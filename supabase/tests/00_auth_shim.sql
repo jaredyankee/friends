@@ -49,12 +49,14 @@ grant usage on schema public to anon, authenticated;
 grant usage on schema auth to anon, authenticated;
 grant select on auth.users to authenticated;
 
--- Supabase grants these automatically for tables created in public. Without the
--- equivalent here, every query fails on permissions before RLS is ever
--- consulted — which looks like a policy bug and is not one.
-alter default privileges in schema public
-  grant all on tables to anon, authenticated;
-alter default privileges in schema public
-  grant all on sequences to anon, authenticated;
-alter default privileges in schema public
-  grant execute on functions to anon, authenticated;
+-- DELIBERATELY NOT GRANTED HERE.
+--
+-- An earlier version of this shim did `alter default privileges ... grant all on
+-- tables to anon, authenticated`, which made every local test pass while the
+-- real thing failed with "permission denied for table profiles" on every query.
+-- RLS decides which rows a role may see; table-level GRANTs decide whether it
+-- may touch the table at all, and Supabase does not hand those out for free.
+--
+-- Migrations now grant explicitly, which is where that belongs. Keeping this
+-- shim ungenerous is the point: it should be stingier than production, never
+-- more permissive, so a missing grant fails locally instead of in CI.

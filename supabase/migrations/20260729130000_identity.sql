@@ -241,6 +241,25 @@ create policy group_members_delete on group_members for delete
   );
 
 -- ---------------------------------------------------------------------------
+-- Table privileges
+--
+-- Two separate gates, and both must open. RLS decides *which rows* a role may
+-- see; GRANT decides whether it may touch the table at all. Enabling RLS
+-- without granting produces "permission denied for table" on every query — the
+-- policies never even get evaluated.
+--
+-- `anon` gets nothing: Friends has no unauthenticated read path, and the moment
+-- one is wanted it should be a deliberate, narrow grant rather than a leftover.
+-- ---------------------------------------------------------------------------
+
+grant usage on schema public to anon, authenticated;
+
+grant select, insert, update, delete on profiles      to authenticated;
+grant select, insert, update, delete on friendships   to authenticated;
+grant select, insert, update, delete on groups        to authenticated;
+grant select, insert, update, delete on group_members to authenticated;
+
+-- ---------------------------------------------------------------------------
 -- New-user trigger
 --
 -- Creates a profile when Supabase Auth creates a user. Handle is derived from
