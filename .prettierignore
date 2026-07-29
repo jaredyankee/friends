@@ -1,0 +1,10 @@
+node_modules
+.expo
+dist
+coverage
+package-lock.json
+
+# Prose. Wrapping in these is deliberate; Prettier rewraps it and buries real
+# diffs under formatting churn.
+*.md
+docs/

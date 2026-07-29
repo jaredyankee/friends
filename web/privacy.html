@@ -7,35 +7,101 @@
     <meta name="robots" content="noindex" />
     <style>
       :root {
-        --bg: #ffffff; --surface: #f6f6f7; --text: #16161a; --muted: #6b6b76;
-        --primary: #4f46e5; --border: #e4e4e8; --warn-bg: #fff8e6; --warn-border: #e8d9a8;
+        --bg: #ffffff;
+        --surface: #f6f6f7;
+        --text: #16161a;
+        --muted: #6b6b76;
+        --primary: #4f46e5;
+        --border: #e4e4e8;
+        --warn-bg: #fff8e6;
+        --warn-border: #e8d9a8;
       }
       @media (prefers-color-scheme: dark) {
         :root {
-          --bg: #101014; --surface: #1a1a20; --text: #f2f2f5; --muted: #9a9aa6;
-          --primary: #8b85f0; --border: #2a2a33; --warn-bg: #2a2416; --warn-border: #4a4028;
+          --bg: #101014;
+          --surface: #1a1a20;
+          --text: #f2f2f5;
+          --muted: #9a9aa6;
+          --primary: #8b85f0;
+          --border: #2a2a33;
+          --warn-bg: #2a2416;
+          --warn-border: #4a4028;
         }
       }
-      * { box-sizing: border-box; }
+      * {
+        box-sizing: border-box;
+      }
       body {
-        margin: 0; background: var(--bg); color: var(--text);
-        font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font:
+          16px/1.65 -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
       }
-      main { max-width: 44rem; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
-      h1 { font-size: 2rem; letter-spacing: -0.02em; margin: 0 0 1.5rem; }
-      h2 { font-size: 1.15rem; margin: 2.5rem 0 0.75rem; }
+      main {
+        max-width: 44rem;
+        margin: 0 auto;
+        padding: 3rem 1.5rem 5rem;
+      }
+      h1 {
+        font-size: 2rem;
+        letter-spacing: -0.02em;
+        margin: 0 0 1.5rem;
+      }
+      h2 {
+        font-size: 1.15rem;
+        margin: 2.5rem 0 0.75rem;
+      }
       .notice {
-        background: var(--warn-bg); border: 1px solid var(--warn-border);
-        border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 2rem;
+        background: var(--warn-bg);
+        border: 1px solid var(--warn-border);
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 2rem;
       }
-      .notice strong { display: block; margin-bottom: 0.35rem; }
-      table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.95rem; }
-      th, td { text-align: left; padding: 0.6rem 0.5rem; border-bottom: 1px solid var(--border); vertical-align: top; }
-      th { color: var(--muted); font-weight: 600; }
-      code { background: var(--surface); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.9em; }
-      a { color: var(--primary); }
-      .back { display: inline-block; margin-bottom: 2rem; color: var(--muted); text-decoration: none; }
-      .back:hover { color: var(--primary); }
+      .notice strong {
+        display: block;
+        margin-bottom: 0.35rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.95rem;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 0.6rem 0.5rem;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+      th {
+        color: var(--muted);
+        font-weight: 600;
+      }
+      code {
+        background: var(--surface);
+        padding: 0.1rem 0.35rem;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+      a {
+        color: var(--primary);
+      }
+      .back {
+        display: inline-block;
+        margin-bottom: 2rem;
+        color: var(--muted);
+        text-decoration: none;
+      }
+      .back:hover {
+        color: var(--primary);
+      }
     </style>
   </head>
   <body>
@@ -45,16 +111,19 @@
 
       <div class="notice">
         <strong>Draft — not yet in effect.</strong>
-        Friends has not been released and collects no data from anyone today. This page documents what
-        the app is being built to store, so the final policy can be written against something accurate.
-        It is not a legal agreement, has not been reviewed by a lawyer, and will be replaced before
-        launch.
+        Friends has not been released and collects no data from anyone today. This page documents
+        what the app is being built to store, so the final policy can be written against something
+        accurate. It is not a legal agreement, has not been reviewed by a lawyer, and will be
+        replaced before launch.
       </div>
 
       <h2>What the app is designed to store</h2>
       <table>
         <thead>
-          <tr><th>Data</th><th>Why</th></tr>
+          <tr>
+            <th>Data</th>
+            <th>Why</th>
+          </tr>
         </thead>
         <tbody>
           <tr>
@@ -67,7 +136,10 @@
           </tr>
           <tr>
             <td>Schedule items: times, recurrence, and optionally title, location, and notes</td>
-            <td>The calendar itself. Detail fields are optional and are only shown to people you have explicitly granted that level of access.</td>
+            <td>
+              The calendar itself. Detail fields are optional and are only shown to people you have
+              explicitly granted that level of access.
+            </td>
           </tr>
           <tr>
             <td>Visibility settings and sharing grants</td>
@@ -87,9 +159,9 @@
       <h2>Availability is calculated, not stored</h2>
       <p>
         Friends never stores a record of when you are free. Free time is derived on request by
-        subtracting your schedule items from a time range, and what another person sees depends on what
-        you have shared with them. Two people can see different availability for you, and that is by
-        design.
+        subtracting your schedule items from a time range, and what another person sees depends on
+        what you have shared with them. Two people can see different availability for you, and that
+        is by design.
       </p>
 
       <h2>Sections still to be written</h2>
@@ -101,8 +173,8 @@
 
       <h2>Deleting your account</h2>
       <p>
-        Account deletion will be available inside the app. What happens to messages you have sent to a
-        group, and to a group whose last owner deletes their account, is still being decided — the
+        Account deletion will be available inside the app. What happens to messages you have sent to
+        a group, and to a group whose last owner deletes their account, is still being decided — the
         answer will be stated here explicitly rather than left to inference.
       </p>
 

@@ -1,0 +1,33 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+
+    // Beyond `strict`. These three catch the specific mistakes this codebase
+    // is most exposed to:
+    //   noUncheckedIndexedAccess — interval and occurrence arrays get indexed
+    //     constantly; without it, `intervals[0]` is typed as present when it
+    //     may not be, which is exactly how off-by-one bugs survive to runtime.
+    //   exactOptionalPropertyTypes — an optional field explicitly set to
+    //     undefined is not the same as absent, and the difference is load-
+    //     bearing for recurrence exceptions that mean "inherit from parent".
+    //   noImplicitOverride — cheap, prevents accidental shadowing.
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    // expo/tsconfig.base sets no `types`, so this is additive rather than
+    // clobbering. Needed for describe/it/expect in *.test.ts.
+    "types": ["jest"],
+
+    "paths": {
+      "@friends/schedule-core": ["./packages/schedule-core/src"],
+      "@friends/schedule-ui": ["./packages/schedule-ui/src"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
+  "exclude": ["node_modules", "dist", "web"]
+}

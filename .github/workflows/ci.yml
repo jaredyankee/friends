@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# A newer push to the same branch supersedes an in-flight run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Typecheck, lint, test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` over `npm install`: it installs exactly the lockfile and fails
+      # if package.json and the lock have drifted, which is a real signal.
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Test
+        run: npm test
+
+      # The only check here that exercises the monorepo wiring end to end. A
+      # passing typecheck does not prove Metro can resolve @friends/* from the
+      # app — this does, and it is where a broken metro.config.js shows up.
+      - name: Bundle (proves workspace resolution)
+        run: npx expo export --platform ios --output-dir /tmp/expo-export
