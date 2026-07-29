@@ -1,0 +1,28 @@
+# Netlify hosts the Friends marketing and legal site — not the app.
+#
+# The app is React Native (Expo) and does not build for web. This config exists
+# so Netlify publishes the static site in web/ instead of attempting to build the
+# mobile app and failing every deploy preview.
+#
+# App Store submission (roadmap T8.4) requires a reachable privacy policy URL and
+# support URL. Those live here.
+
+[build]
+  publish = "web"
+  # web/ is plain static HTML. An explicit no-op command is deliberate: an empty
+  # string lets Netlify fall back to auto-detection, which finds package.json and
+  # tries to build the React Native app.
+  command = "echo 'No build step — publishing static site from web/'"
+
+# Long-cache static assets; always revalidate HTML so policy updates go live.
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
