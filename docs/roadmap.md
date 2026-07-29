@@ -46,15 +46,16 @@ A running app, a running database, and the CI to keep them honest. Nothing Frien
 - [ ] `.env` handling for local vs. production Supabase, with no secrets committed
 - [ ] App boots in the iOS simulator and tabs navigate
 
-### A1.2 — Identity schema `[ ]`
+### A1.2 — Identity schema `[~]`
 
-- [ ] `supabase start` runs locally
-- [ ] Migration creates `profiles`, `friendships`, `groups`, `group_members` per `docs/schema.md`
-- [ ] RLS enabled with policies on all four, including the `is_group_member` security-definer helper
-- [ ] Trigger creates a `profiles` row on `auth.users` insert
-- [ ] Seed script produces a usable dev dataset: several profiles, a friendship, a group
-- [ ] `lib/database.types.ts` generated and committed
-- [ ] Policy test: a non-friend cannot read another profile's private fields
+- [ ] `supabase start` runs locally — unverified in the dev container (no image pulls); CI runs it
+- [x] Migration creates `profiles`, `friendships`, `groups`, `group_members` per `docs/schema.md`
+- [x] RLS enabled with policies on all four, including the `is_group_member` security-definer helper
+- [x] Trigger creates a `profiles` row on `auth.users` insert
+- [x] Seed script produces a usable dev dataset: several profiles, a friendship, a group
+- [x] `lib/database.types.ts` generated and committed
+- [x] Policy test: a non-friend cannot read another profile's private fields — plus the stronger
+      cases (cannot enumerate, cannot forge a friendship, cannot self-accept, cannot add group members)
 
 ### A1.3 — Auth, session, onboarding `[ ]`
 
