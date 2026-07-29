@@ -29,31 +29,70 @@
           --border: #2a2a33;
         }
       }
-      * { box-sizing: border-box; }
+      * {
+        box-sizing: border-box;
+      }
       body {
         margin: 0;
         background: var(--bg);
         color: var(--text);
-        font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font:
+          16px/1.6 -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
         -webkit-font-smoothing: antialiased;
       }
-      main { max-width: 42rem; margin: 0 auto; padding: 4rem 1.5rem; }
-      h1 { font-size: clamp(2rem, 6vw, 2.75rem); line-height: 1.15; margin: 0 0 1rem; letter-spacing: -0.02em; }
-      .lede { font-size: 1.15rem; color: var(--muted); margin: 0 0 2.5rem; }
+      main {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 4rem 1.5rem;
+      }
+      h1 {
+        font-size: clamp(2rem, 6vw, 2.75rem);
+        line-height: 1.15;
+        margin: 0 0 1rem;
+        letter-spacing: -0.02em;
+      }
+      .lede {
+        font-size: 1.15rem;
+        color: var(--muted);
+        margin: 0 0 2.5rem;
+      }
       .badge {
-        display: inline-block; padding: 0.35rem 0.75rem; border-radius: 999px;
-        background: var(--surface); border: 1px solid var(--border);
-        color: var(--muted); font-size: 0.8rem; margin-bottom: 1.5rem;
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 0.8rem;
+        margin-bottom: 1.5rem;
       }
-      ul { padding-left: 1.2rem; margin: 0 0 2.5rem; }
-      li { margin-bottom: 0.5rem; }
+      ul {
+        padding-left: 1.2rem;
+        margin: 0 0 2.5rem;
+      }
+      li {
+        margin-bottom: 0.5rem;
+      }
       footer {
-        border-top: 1px solid var(--border); padding-top: 1.5rem;
-        color: var(--muted); font-size: 0.9rem;
-        display: flex; gap: 1.25rem; flex-wrap: wrap;
+        border-top: 1px solid var(--border);
+        padding-top: 1.5rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+        display: flex;
+        gap: 1.25rem;
+        flex-wrap: wrap;
       }
-      a { color: var(--primary); text-decoration: none; }
-      a:hover { text-decoration: underline; }
+      a {
+        color: var(--primary);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
     </style>
   </head>
   <body>
@@ -61,8 +100,8 @@
       <span class="badge">In development</span>
       <h1>Find the time that works for everyone.</h1>
       <p class="lede">
-        Friends is an iOS app for coordinating plans. Keep your schedule, share it with the people you
-        choose, and see the windows when your whole group is actually free.
+        Friends is an iOS app for coordinating plans. Keep your schedule, share it with the people
+        you choose, and see the windows when your whole group is actually free.
       </p>
       <ul>
         <li>Share as much or as little as you want — a blocked-out hour, or the full details.</li>
