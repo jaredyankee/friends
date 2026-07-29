@@ -87,5 +87,18 @@ jobs:
           npx supabase gen types typescript --local --schema public > /tmp/database.types.ts
           if ! diff -u lib/database.types.ts /tmp/database.types.ts; then
             echo "::error::lib/database.types.ts is stale. Run 'npm run db:types' and commit."
+            echo "----- BEGIN EXPECTED database.types.ts -----"
+            cat /tmp/database.types.ts
+            echo "----- END EXPECTED database.types.ts -----"
             exit 1
           fi
+
+      # Printing the expected file above is deliberate. A diff fragment tells you
+      # something drifted; the whole file lets anyone without a working local
+      # Supabase stack recover the correct content from the log.
+      - name: Upload generated types
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-types
+          path: /tmp/database.types.ts
