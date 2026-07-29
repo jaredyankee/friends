@@ -8,6 +8,12 @@
 # support URL. Those live here.
 
 [build]
+  # Explicit, and load-bearing. The Netlify site was originally configured for a
+  # different project and carries a dashboard base directory of "api", which does
+  # not exist here — builds failed while parsing config, before ever reaching the
+  # publish step. Setting base here overrides that stale value, and keeps working
+  # if the site is ever reconfigured.
+  base = "."
   publish = "web"
   # web/ is plain static HTML. An explicit no-op command is deliberate: an empty
   # string lets Netlify fall back to auto-detection, which finds package.json and
